@@ -1,6 +1,6 @@
 <h5 align="right">28.11.2019</h5>
-<hr><h1 align="center">Databases Blog Entry</h1>
-<h3 align="right">Semester Assignment of <em>"Investigation & reporting (UFO)"</em> course</h3> 
+<hr><h1 align="center">:page_with_curl: DATABASES BLOG ENTRY :page_with_curl:</h1>
+<h3 align="right">Semester Assignment of <em>"Investigation & reporting (UFO)"</em> course</h3>
 </br>
 
 ABSTRACT HERE
