@@ -1,4 +1,4 @@
-<hr><h1 align="center">UFO Blog Guidelines</h1>
+<h1 align="center">UFO Blog Guidelines</h1>
 </br>
 
 ---
