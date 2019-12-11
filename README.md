@@ -170,7 +170,7 @@ With all this said, by the end of the day, experimenting with new visions and co
 </br>
 
 ___
-> #### Assignment made by:   
+> #### Blogpost made by:   
 `David Alves 👨🏻‍💻 ` :octocat: [Github](https://github.com/davi7725) <br />
 `Elitsa Marinovska 👩🏻‍💻 ` :octocat: [Github](https://github.com/elit0451) <br />
 > Attending "Investigation & reporting (UFO)" course of Software Development bachelor's degree
