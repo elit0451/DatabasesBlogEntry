@@ -24,11 +24,11 @@ Picking the wrong schema for MongoDB can significantly decrease query performanc
 ## Introduction <img src="https://user-images.githubusercontent.com/21998037/69781481-96310c80-11ae-11ea-8f6b-0ac987d1d559.png" align="center" height="45"> 
 The aim of this blogpost is to sensitize the entire community of developers who use MongoDB as their persistence layer. We were inspired to improve a final project based on the critique provided during its examination. The complete source code and documentation of our results can be found in [Github](https://github.com/elit0451/GutenbergProject). 
 
-The domain for this blogpost was a selection of books containing a title and an author, as well as a list of cities including their name and their geocoordinates. The resources we have used to supply this domain were the [Gutenberg archive](http://www.gutenberg.org) of English books and [GeoNames](http://download.geonames.org/export/dump/) for the cities data.
+The domain for this blogpost was a selection of books containing a title and an author, as well as a list of cities including their name and their geographical coordinates. The resources we have used to supply this domain were the [Gutenberg archive](http://www.gutenberg.org) of English books and [GeoNames](http://download.geonames.org/export/dump/) for the cities data.
 
 During the examination, based on the previously recorded performance data, our attention was drawn to a specific query which was taking far too long to execute within MongoDB. 
 
-In the underlying sections, we present how we moved away from a separate collection approach and embraced a nested collection instead, in order to bring us optimal performance for our domain and correct the query's abnormal response time.
+In the underlying sections, we present how we moved away from a separate collection approach and embraced a nested collection instead, in order to bring up optimal performance for our domain and correct the query's abnormal response time.
 
 </br>
 
@@ -36,9 +36,9 @@ In the underlying sections, we present how we moved away from a separate collect
 <a name="problem"></a>
 ## Problem statement :rotating_light:
 The pre-formulated search query which originated this investigation was:  
-_"Given an author name list all books written by that author, as well as all the cities mentioned within the books content."_
+_"Given an author name list all books written by that author, as well as all the cities mentioned within the books' content."_
 
-The first schema approach we took was a divided collection model, one for the books and another for the geospatial data accomodating thousands of records in each of them, which lead to our poor performance results.
+The first schema approach we took was a divided collection model, one for the books and another for the geospatial data accommodating thousands of records in each of them, which lead to our poor performance results.
 
 The previous paragraph depicts the main bottleneck we had, which is demonstrated through the execution times shown by MongoDB. Depending on the data, some of the times the query was executed could take up to 30 seconds, which is far too long for any user to wait for data.
 
@@ -49,7 +49,7 @@ This was the problem we tackled and experimented with, so we could present some 
 ---
 <a name="investigation"></a>
 ## Investigation :mag_right:
-We started our investigation phase by having a closer look at our previously developed database schema, which is represented in the figure below. There we could observe that the **Books collection** has title and author text attributes, together with an array of city names. In order to corelate the geographical coordinates with a city, a lookup had to be done between the 2 collections.   
+We started our investigation phase by having a closer look at our previously developed database schema, which is represented in the figure below. There we could observe that the **Books collection** has a title and author text attributes, together with an array of city names. In order to correlate the geographical coordinates with a city, a lookup had to be done between the 2 collections.   
 
 <p align="center">
 <img src="https://user-images.githubusercontent.com/21998037/70529413-c5e9f800-1b50-11ea-8d17-ecd8d71d01a5.png"></p>
@@ -57,7 +57,7 @@ We started our investigation phase by having a closer look at our previously dev
 <em>Separate collections schema</em>
 </p>
 
-We noticed that only the `geodata` collection had indexes associated with it (marked in **bold** on the schema above). From the competences we gained during a Database course, we knew indexes could speed up lookup times by reducing the amount of processed documents. Therefore, our experiment was to add an index to the author field in the `books` collection, since that was a significant field for the investigated query. At this moment we ran several performance tests against our experiment and verified that the timings presented within had suffered no major changes. We did see a reduction of the documents processed from _36 263_ to _39_. 
+We noticed that only the `geodata` collection had indexes associated with it (marked in **red** on the schema above). From the competences we gained during a Database course, we knew indexes could speed up lookup times by reducing the number of processed documents. Therefore, our experiment was to add an index to the author field in the `books` collection, since that was a significant field for the investigated query. At this moment we ran several performance tests against our experiment and verified that the timings presented within had suffered no major changes. We did, however, see a reduction of the documents processed from _36 263_ to _39_. 
 
 </br>
 
@@ -100,13 +100,11 @@ db.books.aggregate(
 Since adding an index lead to intangible results, we were exposed to the idea that we need to dig deeper in order to deal with the undesirable performance.
 A resource we often referred to for inspiration was the [MongoDB documentation website](https://docs.mongodb.com). What also helped us advance was going through a [developer course dedicated to MongoDB](https://www.linkedin.com/learning/learning-mongodb/replication-and-sharding?u=57077785) in the _Linkedin Learning platform_, where we got to refresh all our knowledge about this database engine. 
 
-So far we had been using the application itself for performance measurements, which might not fully reflect the actual timing. It was also adding a layer of complexity while meddling around with different changes to the database, therefore we shifted to the isolated environment of Mongo Client and its native profiling tool. 
-
-We were using the isolated environment of Mongo Client and its native profiling tool for performance results, however, we have developed a specific application for the books’ processing and importation processes into the specified collection(s). This step helped us to reduce the time gap between investigation itterations.
+We were using the isolated environment of Mongo Client and its native profiling tool for performance results, however, we have developed a specific application for the books’ processing and importation processes into the specified collection(s). This step helped us to reduce the time gap between investigation iterations.
 
 Our final endeavour was to remake the schema from including a different collection by reference, to embedding all the relevant data into one big collection. Running the profiler against this new method, revealed a significant drop in execution time.
 
-The newly designed schema model, followed by the modified query look is presented below. Changing the schema also reduced the complexity of the query.
+The newly designed schema model, followed by the modified query look is presented below. Changing the schema also reduced the complexity of the used query.
 
 <p align="center">
 <img src="https://user-images.githubusercontent.com/21998037/70529664-68a27680-1b51-11ea-911d-c63dbfaf4cbb.png" width=20%></p>
@@ -143,11 +141,11 @@ The last step from our investigation phase yielded the most jaw-dropping results
 As it can be seen below we managed to develop from a linear dependency to a constant one.  
 <img width="797" src="https://user-images.githubusercontent.com/21998037/69785702-00e74580-11b9-11ea-9e05-d273d41291d0.png">
 
-On the first graph the connection between the number of lookups and the amount of cities a text references is depicted. Following up, we are presenting a box-plot graphic that represents the timings taken before and after altering the schema (all measurements were recorded with indexes applied).
+On the first graph, the connection between the number of lookups and the amount of cities a text references is depicted. Following up, we are presenting a box-plot graphic that represents the timings taken before and after altering the schema (all measurements were recorded by executing the query 20 times with indexes applied).
 
 <img src="https://user-images.githubusercontent.com/21998037/69785636-d4cbc480-11b8-11ea-91d6-e34fe1139615.png"> 
 
-Our curiosity and experience provoked us to evaluate the efficiency of our new schema after taking advantage of text indexes. Taking into consideration the immense amount of documents the chosen database engine had to evaluate against the executed query, the application of indexes was a very valued resource (_i.e. from 36 263 documents processed to 39_).
+Our curiosity and experience provoked us to evaluate the efficiency of our new schema after taking advantage of text indexes. Taking into consideration the immense amount of documents the chosen database engine had to evaluate against the executed query, the application of indexes was a very valued resource (_i.e. from 36 263 documents processed, down to 39_).
 
 By the end, we ended up with a sample application which exemplifies both approaches to schemas in a way which is convenient to reproduce. It helps to demonstrate our investigation and findings for all the readers who are willing to reproduce the results. Further instructions can be found in the [guidelines document](https://github.com/elit0451/DatabasesBlogEntry/blob/master/Guidelines.md).
 
